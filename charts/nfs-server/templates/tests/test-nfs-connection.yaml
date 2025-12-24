@@ -1,0 +1,28 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "nfs-server.fullname" . }}-test-connection
+  labels:
+    {{- include "nfs-server.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: nfs-test
+      image: alpine:3.22
+      command:
+        - /bin/sh
+        - -c
+        - |
+          set -e
+          apk add --no-cache nfs-utils
+          mkdir -p /mnt/nfs
+          # With fsid=0, NFSv4 exports root as /, so mount / instead of /exports
+          mount -t nfs4 {{ include "nfs-server.fullname" . }}:/ /mnt/nfs
+          touch /mnt/nfs/helm-test-nfs-server.txt
+          echo "NFS test successful"
+          umount /mnt/nfs
+      securityContext:
+        privileged: true
+  restartPolicy: Never
