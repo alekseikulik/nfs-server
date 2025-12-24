@@ -1,0 +1,58 @@
+# https://github.com/norwoodj/helm-docs?tab=readme-ov-file#markdown-rendering
+
+{{ template "chart.header" . }}
+{{ template "chart.deprecationWarning" . }}
+
+{{ template "chart.badgesSection" . }}
+
+{{ template "chart.description" . }}
+
+{{ template "chart.homepageLine" . }}
+
+{{ template "chart.maintainersSection" . }}
+
+{{ template "chart.sourcesSection" . }}
+
+{{ template "chart.requirementsSection" . }}
+
+## PV and PVC examples
+
+```yaml
+# Example PersistentVolume for NFS Server
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-volume
+  namespace: demo
+spec:
+  storageClassName: ""
+  capacity:
+    storage: 200Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: nfs-server.nfs.svc.cluster.local
+    path: "/srv/nfs/"
+
+# Example PersistentVolumeClaim for NFS Server
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-volume-claim
+  namespace: demo
+spec:
+  storageClassName: ""
+  volumeName: nfs-volume
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 200Gi
+
+```
+
+{{ template "chart.valuesSection" . }}
+
+{{ template "helm-docs.versionFooter" . }}

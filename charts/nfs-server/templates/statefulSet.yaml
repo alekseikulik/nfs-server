@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "nfs-server.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "nfs-server.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  serviceName: nfs-service
+  selector:
+    matchLabels:
+      {{- include "nfs-server.selectorLabels" . | nindent 4 }}
+  template:
+    metadata:
+      labels:
+        {{- include "nfs-server.labels" . | nindent 4 }}
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+          - name: nfs
+            containerPort: 2049
+          - name: mountd
+            containerPort: 20048
+          - name: rpcbind
+            containerPort: 111
+        securityContext:
+          privileged: true
+        volumeMounts:
+          - mountPath: /exports
+            name: nfs-server-volume
+      volumes:
+        - name: nfs-server-volume
+          persistentVolumeClaim:
+            claimName: nfs-disk
