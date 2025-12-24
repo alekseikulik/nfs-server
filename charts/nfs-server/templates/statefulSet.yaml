@@ -10,11 +10,11 @@ spec:
   serviceName: nfs-service
   selector:
     matchLabels:
-      {{- include "nfs-server.selectorLabels" . | nindent 4 }}
+      {{- include "nfs-server.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "nfs-server.labels" . | nindent 4 }}
+        {{- include "nfs-server.selectorLabels" . | nindent 8 }}
     spec:
       containers:
       - name: {{ .Chart.Name }}
@@ -29,10 +29,22 @@ spec:
             containerPort: 111
         securityContext:
           privileged: true
+        {{- with .Values.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- if .Values.persistence.enabled }}
         volumeMounts:
           - mountPath: /exports
             name: nfs-server-volume
+        {{- end }}
+      {{- if .Values.persistence.enabled }}
       volumes:
         - name: nfs-server-volume
           persistentVolumeClaim:
             claimName: nfs-disk
+      {{- end }}
