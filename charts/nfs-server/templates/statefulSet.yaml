@@ -16,6 +16,7 @@ spec:
       labels:
         {{- include "nfs-server.selectorLabels" . | nindent 8 }}
     spec:
+      serviceAccountName: {{ include "nfs-server.serviceAccountName" . }}
       containers:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
