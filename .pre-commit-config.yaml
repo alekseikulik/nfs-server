@@ -1,0 +1,16 @@
+---
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-yaml
+        exclude: ^charts/
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  - repo: https://github.com/norwoodj/helm-docs
+    rev:  "v1.14.2"
+    hooks:
+      - id: helm-docs
+        args:
+          # Make the tool search for charts only under the `charts` directory
+          - --chart-search-root=charts
