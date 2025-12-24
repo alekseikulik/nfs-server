@@ -41,6 +41,11 @@ test: helm-test docker-test # Run all tests
 	@echo "All tests completed successfully."
 
 .PHONY: kind-load
-kind-load: # Load Docker image into Kind cluster
-	@kind load docker-image $(IMAGE_NAME):latest
-	@echo "Docker image $(IMAGE_NAME):latest loaded into Kind cluster."
+kind-load: docker-build # Load Docker image into Kind cluster
+	@echo "Available Kind clusters:"
+	@kind get clusters 2>/dev/null || echo "  (none found)"
+	@echo ""
+	@read -p "Enter cluster name [kind]: " cluster; \
+	cluster=$${cluster:-kind}; \
+	kind load docker-image $(IMAGE_NAME):latest --name $$cluster; \
+	echo "Docker image $(IMAGE_NAME):latest loaded into Kind cluster '$$cluster'."
