@@ -1,7 +1,55 @@
 
- _   _ _____ ____       ____  _____ ______     _______ ____  
-| \ | |  ___/ ___|     / ___|| ____|  _ \ \   / / ____|  _ \ 
+ _   _ _____ ____       ____  _____ ______     _______ ____
+| \ | |  ___/ ___|     / ___|| ____|  _ \ \   / / ____|  _ \
 |  \| | |_  \___ \ ____\___ \|  _| | |_) \ \ / /|  _| | |_) |
-| |\  |  _|  ___) |_____|__) | |___|  _ < \ V / | |___|  _ < 
+| |\  |  _|  ___) |_____|__) | |___|  _ < \ V / | |___|  _ <
 |_| \_|_|   |____/     |____/|_____|_| \_\ \_/  |_____|_| \_\
 
+NFS Server has been deployed successfully!
+
+Service: {{ include "nfs-server.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+NFS Port: 2049
+
+USAGE:
+
+1. Create a PersistentVolume pointing to this NFS server:
+
+   apiVersion: v1
+   kind: PersistentVolume
+   metadata:
+     name: nfs-pv
+   spec:
+     capacity:
+       storage: 10Gi
+     accessModes:
+       - ReadWriteMany
+     nfs:
+       server: {{ include "nfs-server.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+       path: /exports
+
+2. Create a PersistentVolumeClaim:
+
+   apiVersion: v1
+   kind: PersistentVolumeClaim
+   metadata:
+     name: nfs-pvc
+   spec:
+     accessModes:
+       - ReadWriteMany
+     resources:
+       requests:
+         storage: 10Gi
+     volumeName: nfs-pv
+     storageClassName: ""
+
+3. Mount in your Pod:
+
+   volumes:
+     - name: nfs-storage
+       persistentVolumeClaim:
+         claimName: nfs-pvc
+   containers:
+     - name: app
+       volumeMounts:
+         - name: nfs-storage
+           mountPath: /data
